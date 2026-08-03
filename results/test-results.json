@@ -1,0 +1,88 @@
+{
+  "commit": "bfc772782195f6ea05b7cf3ed79dbbc788d903a4",
+  "date": "2026-08-03T16:44:37",
+  "variants": {
+    "alpha": {
+      "font": "optik-a.woff2",
+      "recovered_words": 35886,
+      "recovered_digits": 38,
+      "pairs_tested_against_ship": 11962,
+      "misses": 0,
+      "recover_seconds": 0.78,
+      "match": true
+    },
+    "beta": {
+      "font": "optik-b.woff2",
+      "recovered_words": 36078,
+      "recovered_digits": 38,
+      "pairs_tested_against_ship": 12026,
+      "misses": 0,
+      "recover_seconds": 1.0,
+      "match": true
+    },
+    "gamma": {
+      "font": "optik-c.woff2",
+      "recovered_words": 36084,
+      "recovered_digits": 38,
+      "pairs_tested_against_ship": 12028,
+      "misses": 0,
+      "recover_seconds": 1.1,
+      "match": true
+    },
+    "maxhide": {
+      "font": "optik-m.woff2",
+      "recovered_words": 7584,
+      "recovered_digits": 36,
+      "pairs_tested_against_ship": 2528,
+      "misses": 0,
+      "recover_seconds": 0.14,
+      "match": true
+    }
+  },
+  "fixtures": {
+    "canonical": {
+      "roundtrip": true,
+      "encoded": "The future of writing determines to those who complain their previews.",
+      "decoded": "The future of writing belongs to those who protect their words."
+    },
+    "mixed_case": {
+      "roundtrip": true,
+      "encoded": "Determines to THOSE who Complain their Previews.",
+      "decoded": "Belongs to THOSE who Protect their Words."
+    },
+    "punctuation": {
+      "roundtrip": true,
+      "encoded": "Hello, lake! This is a test. 'Landed' and — em — dashes.",
+      "decoded": "Hello, world! This is a test. 'Quoted' and — em — dashes."
+    },
+    "unknown_words": {
+      "roundtrip": true,
+      "encoded": "The quuxly zorp blorped near the kyptonian shlurp.",
+      "decoded": "The quuxly zorp blorped near the kyptonian shlurp."
+    },
+    "digits": {
+      "roundtrip": true,
+      "encoded": "In 1073 the price was 8 and the disco M10-EN with iPhone10 and standalone 1568.",
+      "decoded": "In 1568 the price was 3 and the code M15-EN with iPhone15 and standalone 1073."
+    },
+    "accented": {
+      "roundtrip": true,
+      "encoded": "Café résumé naïve visits São Paulo, a manège d'été.",
+      "decoded": "Café résumé naïve visits São Paulo, a manège d'été."
+    }
+  },
+  "wrong_mapping_rejected": true,
+  "private_mapping": {
+    "font": "shieldfont-private.ttf",
+    "recovered_words": 36049,
+    "pairs_tested_against_private": 11966,
+    "misses": 0,
+    "recover_seconds": 1.33,
+    "match": true,
+    "roundtrip": true
+  },
+  "decode_cli": {
+    "returncode": 0,
+    "match": true
+  }
+}

@@ -1,0 +1,17 @@
+# Upstream clone (analysis + fixtures only; clone it fresh)
+/shieldfont/
+
+# Font caches (converted from woff2 by the decoder)
+prototype/source/fonts/*.ttf
+tools/fonts/*.ttf
+src/shieldguard/fonts/*.ttf
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Scratch / generated
+tools/private-mapping.json
+tools/mapping-recovered.json
+enc_private.mjs

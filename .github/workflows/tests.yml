@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install package (editable)
+        run: pip install -e .
+
+      - name: Clone the upstream ShieldFont repository (fixture source)
+        run: |
+          git clone --depth 1 https://github.com/isaqueseneda/shieldfont.git shieldfont
+          git -C shieldfont rev-parse HEAD
+
+      - name: Run the decoder test suite
+        run: python prototype/tests/run_tests.py
