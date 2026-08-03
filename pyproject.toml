@@ -3,9 +3,9 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "shieldguard"
+name = "shieldbreaker"
 version = "0.1.0"
-description = "Generic font-derived decoder for ShieldFont-protected HTML"
+description = "Proof-of-concept circumvention of ShieldFont font-based text obfuscation; font-derived decoder"
 readme = "README.md"
 license = { text = "AGPL-3.0" }
 requires-python = ">=3.10"
