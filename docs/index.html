@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShieldGuard — reading through ShieldFont</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #161a22; --ink: #e6e9ef; --muted: #8b93a3;
+    --accent: #5b8cff; --good: #3fb27f; --bad: #e5534b; --line: #262c38;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 56px 0 28px; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 34px; margin: 0 0 6px; }
+  h1 .shield { color: var(--accent); }
+  .sub { color: var(--muted); margin: 0 0 18px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .badge {
+    font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    background: #1c222e; color: var(--muted); border: 1px solid var(--line);
+  }
+  .badge.good { color: var(--good); border-color: #244b3a; background: #12241d; }
+  section { padding: 36px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 22px; margin: 0 0 14px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .panel h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .panel.bad h3 { color: var(--bad); }
+  .panel.good h3 { color: var(--good); }
+  .panel p { margin: 0; }
+  .font-orig { font-family: "Optik", system-ui, sans-serif; font-feature-settings: "ccmp" 1; }
+  textarea, input[type=text] {
+    width: 100%; background: #0d1016; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    font: inherit; resize: vertical;
+  }
+  textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  label { display: block; margin: 0 0 6px; color: var(--muted); font-size: 13px; }
+  .row { display: flex; gap: 12px; align-items: center; }
+  button {
+    background: var(--accent); color: #0b0e14; border: 0; border-radius: 8px;
+    padding: 10px 18px; font: 600 14px inherit; cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  mark.swapped {
+    background: rgba(229, 83, 75, .28); color: #ff9b95;
+    border-radius: 3px; padding: 0 2px;
+  }
+  .xray { margin-top: 10px; font-size: 14px; }
+  .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .stat { display: inline-block; margin-right: 22px; }
+  .stat b { display: block; font-size: 26px; color: var(--good); }
+  .stat span { font-size: 12px; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; }
+  td.good { color: var(--good); font-weight: 600; }
+  code { background: #1c222e; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  footer { padding: 28px 0 48px; color: var(--muted); font-size: 13px; }
+  .demo-output { min-height: 60px; white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1><span class="shield">Shield</span>Guard</h1>
+  <p class="sub">Reading through <a href="https://github.com/isaqueseneda/shieldfont">ShieldFont</a>:
+  the same HTML, two readers. A human sees the original; a scraper sees the decoy.
+  This page runs the decoder <em>live in your browser</em> against the real font.</p>
+  <div class="badges">
+    <span class="badge">11,962 word pairs recovered</span>
+    <span class="badge">0 misses vs shipped mapping</span>
+    <span class="badge good">mapping derived from the font alone</span>
+  </div>
+</header>
+
+<section class="wrap">
+  <h2>The trick, demonstrated</h2>
+  <p class="note">This sentence is encoded in the page source as the decoy on the right.
+  The ShieldFont webfont's GSUB rules re-shape it into readable text. Load the font and
+  both panels show the human text; strip the font and only the decoy remains.</p>
+  <div class="grid">
+    <div class="panel good">
+      <h3>What a human sees</h3>
+      <p class="font-orig demo-output" id="human-sees"></p>
+    </div>
+    <div class="panel bad">
+      <h3>What a scraper reads (in the HTML)</h3>
+      <p class="mono demo-output" id="scraper-reads"></p>
+    </div>
+  </div>
+  <div class="xray">
+    <span class="note">X-ray of the decoy (which words the font rewrites):</span>
+    <div id="xray" class="demo-output"></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Solve it yourself</h2>
+  <p class="note">Type any sentence. The page encodes it the way ShieldFont would,
+  then runs the recovered mapping to restore the original — proving the mapping is
+  fully recoverable from the font and the "protection" is reversible.</p>
+  <div style="margin-bottom: 12px;">
+    <label for="input">Your text</label>
+    <textarea id="input" rows="2" spellcheck="false">The future of writing belongs to those who protect their words. In 1568 the code was M15-EN and the phone was an iPhone15.</textarea>
+  </div>
+  <div class="row" style="margin-bottom: 16px;">
+    <button id="decode">Encode + decode</button>
+    <button id="swap" class="ghost">Swap panes</button>
+    <span id="status" class="note"></span>
+  </div>
+  <div class="grid">
+    <div class="panel bad">
+      <h3>Encoded (what a scraper sees)</h3>
+      <p id="out-enc" class="mono demo-output"></p>
+    </div>
+    <div class="panel good">
+      <h3>Decoded (original recovered)</h3>
+      <p id="out-dec" class="mono demo-output"></p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>How it works</h2>
+  <ol>
+    <li><b>Recover the mapping from the font.</b> The browser needs ShieldFont's full
+      substitution table to render decoys, so the table ships inside the font. Reading
+      the font's GSUB ligature rules, the composite glyph outlines, and the character map
+      reproduces every pair — <code>{decoy_word → original_word}</code>.</li>
+    <li><b>The mapping is an involution.</b> For every pair, <code>m[m[x]] === x</code>,
+      so decoding is re-encoding. This page applies the same transform both ways.</li>
+    <li><b>Decode the HTML.</b> Tokenize text runs, look up each word case-preservingly,
+      apply the context-aware digit rule (<code>1568→1073</code> but <code>M15-EN</code>
+      untouched). Structure, scripts, and code are preserved.</li>
+  </ol>
+  <p class="note">The mapping shown here was derived from <code>optik-a.woff2</code> by
+  <code>prototype/source/shieldguard.py</code> — the same tool, in Python, that decodes
+  whole pages. No dictionary was copied from the upstream repo.</p>
+</section>
+
+<section class="wrap">
+  <h2>Validation</h2>
+  <table>
+    <thead><tr><th>variant</th><th>pairs recovered</th><th>checked vs shipped</th><th>misses</th></tr></thead>
+    <tbody>
+      <tr><td>alpha</td><td>11,962</td><td>11,962</td><td class="good">0</td></tr>
+      <tr><td>beta</td><td>12,026</td><td>12,026</td><td class="good">0</td></tr>
+      <tr><td>gamma</td><td>12,028</td><td>12,028</td><td class="good">0</td></tr>
+      <tr><td>maxhide</td><td>2,528</td><td>2,528</td><td class="good">0</td></tr>
+      <tr><td>private (unseen seed, fresh font)</td><td>11,966</td><td>11,966</td><td class="good">0</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top: 16px;">
+    <span class="stat"><b>0</b><span>misses, every variant</span></span>
+    <span class="stat"><b>&lt; 1.5 s</b><span>to recover a mapping from a font</span></span>
+    <span class="stat"><b>byte-for-byte</b><span>full-page fixture round-trip</span></span>
+  </div>
+</section>
+
+<footer class="wrap">
+  Defensive interoperability research against the open-source
+  <a href="https://github.com/isaqueseneda/shieldfont">ShieldFont</a> project
+  (AGPL-3.0), which itself documents that font inversion defeats it.
+  &middot; <a href="https://github.com/your-org/shieldguard">ShieldGuard on GitHub</a>
+</footer>
+
+<script src="assets/decoder.js"></script>
+<script>
+(async function () {
+  const SG = window.ShieldGuard;
+  const status = document.getElementById("status");
+
+  // 1. Load the mapping (recovered from optik-a.woff2 by the Python decoder).
+  let mapping = null;
+  try {
+    const res = await fetch("assets/alpha-mapping.json");
+    mapping = await res.json();
+    status.textContent = "Mapping loaded: " + (mapping.words ? Object.keys(mapping.words).length : 0) + " pairs.";
+  } catch (e) {
+    status.textContent = "Failed to load mapping: " + e.message;
+  }
+
+  // 2. Load the actual ShieldFont webfont so decoys render as the originals.
+  let fontLoaded = false;
+  try {
+    const f = new FontFace("Optik", "url(https://cdn.jsdelivr.net/npm/@shieldfont/font@0.3.1/optik-a.woff2)");
+    await f.load();
+    document.fonts.add(f);
+    fontLoaded = true;
+    document.getElementById("human-sees").classList.add("font-orig");
+  } catch (e) {
+    document.getElementById("human-sees").textContent = "(webfont could not load: " + e.message + ")";
+  }
+
+  // 3. The canonical demonstration sentence.
+  const canonPlain = "The future of writing belongs to those who protect their words.";
+  const canonEncoded = mapping ? SG.transform(canonPlain, mapping) : canonPlain;
+  document.getElementById("human-sees").textContent = canonPlain;
+  document.getElementById("scraper-reads").textContent = canonEncoded;
+  document.getElementById("xray").innerHTML = mapping
+    ? SG.highlight(canonEncoded, mapping)
+    : canonEncoded;
+
+  // 4. Interactive solver.
+  const enc = document.getElementById("out-enc");
+  const dec = document.getElementById("out-dec");
+  const input = document.getElementById("input");
+  let swapped = false;
+
+  function run() {
+    if (!mapping) return;
+    const plain = input.value;
+    const encoded = SG.transform(plain, mapping);
+    const decoded = SG.transform(encoded, mapping);
+    if (swapped) {
+      enc.textContent = decoded;
+      dec.textContent = encoded;
+    } else {
+      enc.textContent = encoded;
+      dec.textContent = decoded;
+    }
+  }
+  document.getElementById("decode").addEventListener("click", run);
+  document.getElementById("swap").addEventListener("click", function () {
+    swapped = !swapped;
+    run();
+  });
+  run();
+})();
+</script>
+</body>
+</html>

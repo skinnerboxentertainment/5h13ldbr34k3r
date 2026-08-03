@@ -33,6 +33,22 @@ Rivest–Shamir–Wagner time-lock puzzle. It is not cryptographically bypassed 
 but it holds the same words already recovered from the font, and OCR recovers
 them for ~5 CPU-seconds/page regardless (per the maintainers' own threat model).
 
+## Live demo
+
+[**See it work**](https://your-org.github.io/shieldguard/) — a GitHub Pages
+page that demonstrates both sides of the trick in your browser:
+
+- the **poison**: a sentence encoded the way ShieldFont encodes it (what a
+  scraper reads in the HTML), rendered through the *real* ShieldFont webfont so
+  you see it as the human does;
+- the **solver**: type any sentence and watch it encoded and decoded live,
+  using the mapping this project recovered from the font.
+
+The mapping used by the page (`docs/assets/alpha-mapping.json`) was derived by
+`shieldguard` from the real `optik-a.woff2` — no dictionary copied from the
+upstream repo. Run it in the browser: open `docs/index.html` or deploy `docs/`
+to GitHub Pages (a workflow is included).
+
 ## Quick start
 
 ```bash
@@ -76,6 +92,7 @@ built.
 ```
 research/    architecture.md · findings.md · limitations.md · threat-model.md
 prototype/   source/shieldguard.py · tests/run_tests.py · tests/build_private_font.py
+docs/        index.html · assets/decoder.js · assets/alpha-mapping.json  (GitHub Pages demo)
 results/     encoded.html · decoded.html · plain-page.html · test-results.json
 shieldfont/  the cloned upstream repo (analysis + fixture building only)
 ```

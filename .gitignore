@@ -14,4 +14,5 @@ __pycache__/
 # Scratch / generated
 tools/private-mapping.json
 tools/mapping-recovered.json
+tools/shieldguard.py
 enc_private.mjs
