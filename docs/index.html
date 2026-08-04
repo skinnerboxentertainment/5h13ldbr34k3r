@@ -114,7 +114,6 @@
   </div>
   <div class="row" style="margin-bottom: 16px;">
     <button id="decode">Encode + decode</button>
-    <button id="swap" class="ghost">Swap panes</button>
     <span id="status" class="note"></span>
   </div>
   <div class="grid">
@@ -214,26 +213,14 @@
   const enc = document.getElementById("out-enc");
   const dec = document.getElementById("out-dec");
   const input = document.getElementById("input");
-  let swapped = false;
 
   function run() {
     if (!mapping) return;
     const plain = input.value;
-    const encoded = SG.transform(plain, mapping);
-    const decoded = SG.transform(encoded, mapping);
-    if (swapped) {
-      enc.textContent = decoded;
-      dec.textContent = encoded;
-    } else {
-      enc.textContent = encoded;
-      dec.textContent = decoded;
-    }
+    enc.textContent = SG.transform(plain, mapping);
+    dec.textContent = SG.transform(enc.textContent, mapping);
   }
   document.getElementById("decode").addEventListener("click", run);
-  document.getElementById("swap").addEventListener("click", function () {
-    swapped = !swapped;
-    run();
-  });
   run();
 })();
 </script>
